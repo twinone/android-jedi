@@ -21,6 +21,6 @@ A continuación tenéis un índice de la asignatura:
 
 
 Links útiles
-[Android Studio](https://developer.android.com/studio/)
-[Android developers](https://developer.android.com/)
-[Developer guide](https://developer.android.com/guide/)
+* [Android Studio](https://developer.android.com/studio/)
+* [Android developers](https://developer.android.com/)
+* [Developer guide](https://developer.android.com/guide/)
