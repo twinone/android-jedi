@@ -7,17 +7,16 @@ En este repositorio podréis encontrar todo el material que utilizaremos durante
 
 A continuación tenéis un índice de la asignatura:
 
-1. Hello Android: Android Studio, Android SDK, Hello world, Activities, Services y ciclo de vida.
-2. Layouts are fun: XML and Java.
-3. Fragments, Navegación.
-4. Networking, threads, AsyncTasks, EventBus, and more.
-5. Using sensors, locations, permissions. Android API's everywhere! Did anybody say notifications?
+1. Hello Android.
+2. Layouts, animations.
+3. Fragments, navigation.
+4. Permissions, sensors, notifications, and more Android APIs.
+5. Synchronization. The UI thread. Networking.
 6. Short Project: A simple music player.
-7. SurfaceView, Canvas, gaming & physics.
-8. Short Project 2: Double Trouble.
-9. Todo sobre publicidad en Android.
-10. ProGuard, obfuscación y publicación en Google Play.
-11. Proyecto Final.
+7. SurfaceView, Canvas drawing, gaming & physics.
+8. Short Project 2: Bubble Trouble.
+9. Publicidad, ProGuard, obfuscación y publicación en Google Play.
+10. Proyecto Final.
 
 
 
