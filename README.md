@@ -11,11 +11,13 @@ A continuación tenéis un índice de la asignatura:
 2. Layouts are fun: XML and Java.
 3. Fragments, Navegación.
 4. Networking, threads, AsyncTasks, EventBus, and more.
-5. Using sensors, locations, permissions. Did anybody say notifications?
+5. Using sensors, locations, permissions. Android API's everywhere! Did anybody say notifications?
 6. Short Project: A simple music player.
-7. Todo sobre publicidad en Android.
-8. ProGuard, obfuscación y publicación en Google Play.
-9. Proyecto Final.
+7. SurfaceView, Canvas, gaming & physics.
+8. Short Project 2: Double Trouble.
+9. Todo sobre publicidad en Android.
+10. ProGuard, obfuscación y publicación en Google Play.
+11. Proyecto Final.
 
 
 
