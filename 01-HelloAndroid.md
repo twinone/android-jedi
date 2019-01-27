@@ -22,7 +22,7 @@ Una puede tener muchos componentes, pero hay algunos básicos y necesarios. Algu
 
 * **Activities**: Una `Activity` es una pantalla visible de la aplicación, las estudiaremos más en detalle.
 * **Services**: Una `Service` es una parte de la aplicación que ejecuta código en segundo plano y, en principio, sin visibilidad para el usuario.
-* **AndroidManifest.xml**: Obligatorio en todas las aplicaciones. Aquí se recoge toda la información de la aplicación, como qué permisos encesita, qué activities y servicios tiene, qué versión de Android necesita para funcionar, y muchas más cosas.
+* **AndroidManifest.xml**: Obligatorio en todas las aplicaciones. Aquí se recoge toda la información de la aplicación, como qué permisos necesita, qué activities y servicios tiene, qué versión de Android necesita para funcionar, y muchas más cosas.
 
 ## Activity, Layout y ciclo de vida
 
@@ -30,7 +30,7 @@ Un [`Activity`](https://developer.android.com/guide/components/activities/) es u
 
 Es importante utilizar los callbacks adecuados para cada situación. Utilizaremos principalmente `onCreate`, `onPause`/`onResume`, y a veces `onDestroy`. Inicializaremos los componentes de la UI en `onCreate`.
 
-Añadiremos un botón a la interfaz abriendo el xml `app > res > layout > activity_main.xml`, donde encontraremos un único TextView. Arrastramos un botón a la pantalla. Tambien añadiremos un EditText (en `Text > Plain Text`). Si abrimos el visor XML veremos que se ha creado nuestros componentes con ids `button` y `editText`. Los dejaremos así por ahora.
+Añadiremos un botón a la interfaz abriendo el xml `app > res > layout > activity_main.xml`, donde encontraremos un único TextView. Arrastramos un botón a la pantalla. También añadiremos un EditText (en `Text > Plain Text`). Si abrimos el visor XML veremos que se ha creado nuestros componentes con ids `button` y `editText`. Los dejaremos así por ahora.
 
 Veremos en `app > java > com.jediupc.jediandroid > MainActivity.java` la función `onCreate` ya implementada. Por ahora lo único que hace es abrir el XML que hemos editado antes y mostrarlo en la pantalla. Vamos a ejecutarlo en el emulador para verlo.
 
