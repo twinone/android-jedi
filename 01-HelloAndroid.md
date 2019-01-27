@@ -17,9 +17,16 @@ Utilizaremos un `Pixel XL` con API level 28 (**con Google APIs**), dejando todas
 
 Probamos nuestra app por defecto en el emulador.
 
+## Componentes de una app
+Una puede tener muchos componentes, pero hay algunos básicos y necesarios. Algunos básicos son:
+
+* **Activities**: Una `Activity` es una pantalla visible de la aplicación, las estudiaremos más en detalle.
+* **Services**: Una `Service` es una parte de la aplicación que ejecuta código en segundo plano y, en principio, sin visibilidad para el usuario.
+* **AndroidManifest.xml**: Obligatorio en todas las aplicaciones. Aquí se recoge toda la información de la aplicación, como qué permisos encesita, qué activities y servicios tiene, qué versión de Android necesita para funcionar, y muchas más cosas.
+
 ## Activity, Layout y ciclo de vida
 
-Un activity es una pantalla visible de nuestra aplicación. Se crea cuando el usuario la abre por primera vez, y se destruye cuando el sistema lo cree necesario. Una explicación más detallada [aquí](https://developer.android.com/guide/components/activities/activity-lifecycle)
+Un [`Activity`](https://developer.android.com/guide/components/activities/) es una pantalla visible de nuestra aplicación. Se crea cuando el usuario la abre por primera vez, y se destruye cuando el sistema lo cree necesario. Una explicación más detallada [aquí](https://developer.android.com/guide/components/activities/activity-lifecycle)
 
 Es importante utilizar los callbacks adecuados para cada situación. Utilizaremos principalmente `onCreate`, `onPause`/`onResume`, y a veces `onDestroy`. Inicializaremos los componentes de la UI en `onCreate`.
 
@@ -50,7 +57,18 @@ Para crear una nueva Activity, normalmente podemos utilizar los menús de Androi
 * Añadir nuestra activity al `AndroidManifest.xml`
 * Tener alguna forma de lanzar nuestra nueva Activity.
 
-*Toda esta parte se explica en clase*
+*Toda esta parte se explica más en detalle en clase*
+
+
+## Services & intents
+
+Para saber más sobre los services, tenemos la documentación oficial [aquí](https://developer.android.com/guide/components/services).
+
+Utilizaremos los services para ejecutar código en segundo plano, como por ejemplo reproducir música cuando el usuario se vaya de nuestra aplicación. Para evitar que todas las apps hagan services sin control, el sistema cerrará las services después de un tiempo cuando salgamos de la aplicación. Para evitar esto podemos declararlas como `foreground services` (aquí foreground solo se refiere a la prioridad, y no a la visibilidad del service). Para un foreground service necesitaremos poner una notificación (que veremos más adelante).
+
+* *En clase veremos como ejecutar un service, como pararlo, los tipos de services que hay, etc*
+
+
 
 
 
