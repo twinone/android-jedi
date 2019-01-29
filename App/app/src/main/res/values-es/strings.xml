@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Hola Android</string>
+    <string name="app_desc">App desarrollada durante el Curso de Jedi</string>
+</resources>

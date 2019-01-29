@@ -28,6 +28,7 @@
         android:id="@+id/cbRemember"
         android:layout_marginTop="32dp"
         android:layout_width="match_parent"
+        android:checked="true"
         android:layout_height="wrap_content"
         android:layout_below="@id/etPass"
         android:text="Remember me" />
