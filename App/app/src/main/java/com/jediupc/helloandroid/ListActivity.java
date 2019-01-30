@@ -39,7 +39,7 @@ public class ListActivity extends AppCompatActivity {
         // specify an adapter (see also next example)
         final ArrayList<MenuItem> myDataset = new ArrayList<>();
         myDataset.add(new MenuItem("Level", LevelActivity.class));
-        myDataset.add(new MenuItem("Login 2", LoginActivity.class));
+        myDataset.add(new MenuItem("Main", MainActivity.class));
 
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override

@@ -13,12 +13,14 @@ public class LevelActivity extends AppCompatActivity implements SensorEventListe
 
     Sensor mAccelerometer;
     SensorManager mSensorManager;
-
+    CanvasView mCanvasView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level);
+
+        mCanvasView = findViewById(R.id.canvasView);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -39,8 +41,8 @@ public class LevelActivity extends AppCompatActivity implements SensorEventListe
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        Log.d("LevelActivity",
-                "SensorEvent" + String.valueOf(sensorEvent.values[0]));
+        mCanvasView.setXY(sensorEvent.values[0],
+                sensorEvent.values[1]);
     }
 
     @Override
