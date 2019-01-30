@@ -10,13 +10,12 @@ A continuación tenéis un índice de la asignatura:
 1. Hello Android.
 2. Layouts, animations.
 3. Fragments, navigation.
-4. Permissions, sensors, notifications, and more Android APIs.
+4. A simple Music Player: Permissions, sensors, notifications, and more.
 5. Synchronization. The UI thread. Networking.
-6. Short Project: A simple music player.
-7. SurfaceView, Canvas drawing, gaming & physics.
-8. Short Project 2: Bubble Trouble.
-9. Publicidad, ProGuard, obfuscación y publicación en Google Play.
-10. Proyecto Final.
+6. SurfaceView, Canvas drawing, gaming & physics.
+7. Short Project 2: Bubble Trouble.
+8. Publicidad, ProGuard, obfuscación y publicación en Google Play.
+9. Proyecto Final.
 
 
 
