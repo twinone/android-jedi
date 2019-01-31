@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.jediupc.helloandroid.musicplayer.MusicActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ListActivity extends AppCompatActivity {
 
         setTitle(R.string.title_menu);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        mRecyclerView = findViewById(R.id.my_recycler_view);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -39,7 +41,8 @@ public class ListActivity extends AppCompatActivity {
         // specify an adapter (see also next example)
         final ArrayList<MenuItem> myDataset = new ArrayList<>();
         myDataset.add(new MenuItem("Level", LevelActivity.class));
-        myDataset.add(new MenuItem("Main", MainActivity.class));
+        myDataset.add(new MenuItem("Navigation", NavActivity.class));
+        myDataset.add(new MenuItem("Music Player", MusicActivity.class));
 
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override
