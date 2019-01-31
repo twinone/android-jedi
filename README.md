@@ -23,3 +23,7 @@ Links útiles
 * [Android Studio](https://developer.android.com/studio/)
 * [Android developers](https://developer.android.com/)
 * [Developer guide](https://developer.android.com/guide/)
+
+
+#### Entregas
+A luukwillemsengm2+androidjedi@gmail.com
