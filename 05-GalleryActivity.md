@@ -4,7 +4,7 @@ En este documento explicaremos lo necesario para crear una galería de fotos obt
 Utilizaremos la web de imágenes gratuita [Pixabay](https://pixabay.com/en/), y nos crearemos una cuenta para poder acceder a su [API](https://pixabay.com/api/docs/)
 
 Utilizaremos las siguientes librerías:
-* [Volley](https://github.com/google/volley): Para descargar contenido HTTP. [(documentacion)](https://developer.android.com/training/volley/)
+* [Volley](https://github.com/google/volley): Para descargar contenido sobre HTTP/HTTPS. [(documentacion)](https://developer.android.com/training/volley/)
 * [Glide](https://github.com/bumptech/glide): Para cargar imágenes de forma eficiente.
 * [Gson](https://github.com/google/gson): Para convertir JSON a clases de Java y viceversa.
 
