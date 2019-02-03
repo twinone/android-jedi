@@ -36,5 +36,12 @@ Añadid a @twinone y a @pereverges (**importante, ambos!**) como colaboradores e
   - Seleccionar varios audios para poder borrarlos.
   - Un botón para grabar un audio nuevo (Floating Action Button). Este botón puede abrir un nuevo activity si lo consideráis necesario. Mientras se graba un audio tiene que mostrarse la duración actual.
   
+* **App de to-do list** (tipo lista de la compra, pero con múltiples listas). Tiene que tener como mínimo:
+  - Un Activity principal que muestra las listas, por lo menos los títulos y tenga un botón para añadir una lista. Este Activity tendrá la opción de marcar varias listas para poder borrarlas.
+  - Un Activity editor de listas, al que se accede haciendo click sobre una de las listas del Activity principal. En el ActionBar aparecerá el titulo de la lista, y un botón en el menú del ActionBar para cambiar el título. En este activity podremos ver las opciones de la lista, además de marcar/desmarcar, añadir, quitar y reordenar las opciones.
+  
+  
+ 
+  
  
 
