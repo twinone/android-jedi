@@ -28,3 +28,13 @@ Añadid a @twinone y a @pereverges (**importante, ambos!**) como colaboradores e
 
 *Aseguraos que el formato del zip es zip y no cualquier otra cosa, y de que el proyecto compila correctamente y no faltan recursos, etc. En caso contrario suspenderéis el curso.*
 *Aseguraos que el packagename del proyecto es com.jediupc.helloandroid y ningún otro.*
+
+
+#### Ideas de proyectos
+* Una app de notas de voz. Tiene que tener como mínimo:
+  - Una Activity principal que muestra las notas guardadas utilizando un RecyclerView, con su fecha, duración, un botón para reproducir el audio y una barra de progreso. Mientras se reproduce el audio debe mostrarse el tiempo que lleva en formato mm:ss.
+  - Seleccionar varios audios para poder borrarlos.
+  - Un botón para grabar un audio nuevo (Floating Action Button). Este botón puede abrir un nuevo activity si lo consideráis necesario. Mientras se graba un audio tiene que mostrarse la duración actual.
+  
+ 
+
