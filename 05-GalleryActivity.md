@@ -25,4 +25,13 @@ Aprenderemos sobre los siguientes conceptos:
 
 
 
+## Resultado
+
+Esperamos conseguir algo parecido a esto:
+
+<img src="https://user-images.githubusercontent.com/4309591/52182283-e98b3600-27fb-11e9-8f03-dab184746aca.jpg" width=200/>
+
+
+
+
 *Pero primero hay que acabar el MusicPlayer :(*
