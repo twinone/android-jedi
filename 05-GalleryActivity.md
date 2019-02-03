@@ -18,8 +18,11 @@ Aprenderemos sobre los siguientes conceptos:
 * [ConstraintLayout](https://developer.android.com/reference/android/support/constraint/ConstraintLayout)
 * [ViewPager](https://developer.android.com/reference/android/support/v4/view/ViewPager)
 * [SearchView](https://developer.android.com/reference/android/widget/SearchView)
+* [Contextual Action Mode](https://developer.android.com/guide/topics/ui/menus#context-menu) y su relación con RecyclerView
 * Animations
 * Fragments
+* Sharing
+
 
 
 *Pero primero hay que acabar el MusicPlayer :(*
