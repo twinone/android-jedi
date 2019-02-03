@@ -34,3 +34,19 @@ Añadid a @twinone y a @pereverges (**importante, ambos!**) como colaboradores e
 - Guardar los datos del usuario de forma consistente. Se puede hacer utilizando GSON + Files, o bien con SharedPreferences (o si os atrevéis, con bases de datos).
 - Mostrar en algún punto el uso de un RecyclerView, y el modo contextual para seleccionar elementos del RecyclerView.
 - Tener un botón con un Activity o AlertDialog que muestre el nombre y email del autor.
+
+
+## Criterios de evaluación
+
+Es complicado dar la libertad de que hagáis lo que queráis como proyecto y a la vez evaluarlo de forma objetiva, pero en líneas generales se considerarán los siguientes criterior a la hora de evaluar:
+
+- **Importante**
+  - Que la app compile. En caso contrario la evaluación será un 0.
+  - Que la app no se cierre por causa de una Excepción
+  - Que la app no tenga fallos que un usuario común podría notar como fallo (al borrar algo y volver a entrar resulta que sigue ahí, al hacer click sobre un boton no pasa nada, etc)
+- **Consejos** (para sacar nota, y oye, satisfacción propia)
+  - Que no tenga un diseño repelente (no hace falta que sea lo mejor, pero un texto de 80dp no se consideraría agradable en un RecyclerView)
+  - Originalidad: Algún elemento que no se haya pedido pero estáría bien integrarlo en la app.
+  - Calidad del código: hay variables sin usar? cosas que se repiten 30 veces y no estan en una función?
+
+  
