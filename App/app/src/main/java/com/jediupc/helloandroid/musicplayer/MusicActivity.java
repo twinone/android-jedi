@@ -18,6 +18,9 @@ import android.widget.Button;
 
 import com.jediupc.helloandroid.R;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 
 public class MusicActivity extends AppCompatActivity implements View.OnClickListener {
@@ -47,7 +50,11 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
         mBPrev.setOnClickListener(this);
         mBPlay.setOnClickListener(this);
         mBNext.setOnClickListener(this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         getPermission();
     }
@@ -81,45 +88,45 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
-    private ArrayList<MusicModel> getMusic() {
-        ArrayList<MusicModel> res = new ArrayList<>();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String projection[] = {
-                MediaStore.Audio.AudioColumns.DATA,
-                MediaStore.Audio.AudioColumns.DURATION,
-        };
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        Cursor c = getContentResolver()
-                .query(uri, projection, selection,
-                        null, null);
-        while (c != null && c.moveToNext()) {
-            MusicModel mm = new MusicModel();
-            mm.path = c.getString(0);
-            mm.name = mm.path.substring(mm.path.lastIndexOf("/") + 1);
-            mm.duration = c.getLong(1);
-            res.add(mm);
-        }
-        return res;
-    }
 
     private void onPermissionGranted() {
         Log.d("Permission", "Granted");
 
-        mMusic = getMusic();
+        Intent i = new Intent(this, MusicService.class);
+        i.setAction(MusicService.ACTION_PERMISSION_GRANTED);
+        startService(i);
+    }
+
+    @Subscribe
+    public void onReceiveMusicList(ArrayList<MusicModel> list) {
+        mMusic = list;
         mAdapter = new MusicAdapter(mMusic, new MusicAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int pos) {
                 MusicModel mm = mMusic.get(pos);
-                playMusic(mm);
+                playMusic(mm, pos);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private void playMusic(MusicModel mm) {
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    private void playMusic(MusicModel mm, int pos) {
         Intent i = new Intent(this, MusicService.class);
         i.setAction(MusicService.ACTION_PLAY);
-        i.putExtra("path", mm.path);
+        i.putExtra("pos", pos);
         startService(i);
     }
 
