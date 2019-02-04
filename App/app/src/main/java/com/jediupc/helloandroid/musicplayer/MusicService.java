@@ -28,6 +28,7 @@ public class MusicService extends Service {
     public static final String ACTION_PREVIOUS = "action_prev";
     public static final String ACTION_NEXT = "action_next";
     public static final String ACTION_PERMISSION_GRANTED = "action_permission_granted";
+    public static final String ACTION_GET_STATE = "action_get_state";
 
 
     private static final String CHANNEL_ID = "default";
@@ -58,6 +59,10 @@ public class MusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
         if (intent.getAction() == null) return START_NOT_STICKY;
+
+        if (intent.getAction().equals(ACTION_GET_STATE)) {
+            EventBus.getDefault().post(isPlaying());
+        }
 
         if (intent.getAction().equals(ACTION_PREVIOUS)) {
             mPos--;
@@ -126,6 +131,7 @@ public class MusicService extends Service {
     private void startMusic() {
         if (!isPlaying()) mMediaPlayer.start();
         updateNotification();
+        EventBus.getDefault().post(true);
     }
 
     private void updateNotification() {
@@ -203,11 +209,13 @@ public class MusicService extends Service {
     private void stopMusic() {
         if (isPlaying()) mMediaPlayer.stop();
         updateNotification();
+        EventBus.getDefault().post(false);
     }
 
     private void pauseMusic() {
         if (isPlaying()) mMediaPlayer.pause();
         updateNotification();
+        EventBus.getDefault().post(false);
     }
 
 }

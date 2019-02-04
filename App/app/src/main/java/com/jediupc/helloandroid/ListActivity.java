@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.jediupc.helloandroid.gallery.GalleryActivity;
 import com.jediupc.helloandroid.musicplayer.MusicActivity;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class ListActivity extends AppCompatActivity {
         myDataset.add(new MenuItem("Level", LevelActivity.class));
         myDataset.add(new MenuItem("Navigation", NavActivity.class));
         myDataset.add(new MenuItem("Music Player", MusicActivity.class));
+        myDataset.add(new MenuItem("Gallery", GalleryActivity.class));
 
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override

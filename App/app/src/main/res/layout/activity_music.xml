@@ -8,9 +8,9 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_above="@id/buttonContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_above="@id/buttonContainer" />
 
 
     <LinearLayout
@@ -18,28 +18,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/bPrev"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:text="Prev" />
+            android:src="@drawable/ic_prev" />
 
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/bPlay"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:text="Play/Pause" />
+            android:src="@drawable/ic_play" />
 
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/bNext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:text="Next" />
+            android:src="@drawable/ic_next" />
 
     </LinearLayout>
 

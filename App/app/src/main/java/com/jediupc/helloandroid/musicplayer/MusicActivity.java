@@ -3,9 +3,8 @@ package com.jediupc.helloandroid.musicplayer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,13 +25,14 @@ import java.util.ArrayList;
 public class MusicActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int REQ_PERM = 42;
-    Button mBPrev;
-    Button mBPlay;
-    Button mBNext;
+    FloatingActionButton mBPrev;
+    FloatingActionButton mBPlay;
+    FloatingActionButton mBNext;
     RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private MusicAdapter mAdapter;
     private ArrayList<MusicModel> mMusic;
+    private boolean mPlaying;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +88,6 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
-
     private void onPermissionGranted() {
         Log.d("Permission", "Granted");
 
@@ -130,17 +129,37 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
         startService(i);
     }
 
+    @Subscribe
+    public void onServiceResult(Boolean playing) {
+        mPlaying = playing;
+        int id = playing
+                ? R.drawable.ic_pause
+                : R.drawable.ic_play;
+        Drawable d = getResources().getDrawable(id);
+        mBPlay.setImageDrawable(d);
+    }
+
     @Override
     public void onClick(View view) {
+        Intent i;
         switch (view.getId()) {
             case R.id.bPrev:
+                i = new Intent(this, MusicService.class);
+                i.setAction(MusicService.ACTION_PREVIOUS);
+                startService(i);
                 break;
             case R.id.bPlay:
-                Intent i = new Intent(this, MusicService.class);
-                i.setAction(MusicService.ACTION_PAUSE);
+
+                i = new Intent(this, MusicService.class);
+                i.setAction(mPlaying
+                        ? MusicService.ACTION_PAUSE
+                        : MusicService.ACTION_PLAY);
                 startService(i);
                 break;
             case R.id.bNext:
+                i = new Intent(this, MusicService.class);
+                i.setAction(MusicService.ACTION_NEXT);
+                startService(i);
                 break;
         }
     }
