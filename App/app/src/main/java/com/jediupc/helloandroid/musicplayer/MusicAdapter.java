@@ -1,5 +1,6 @@
 package com.jediupc.helloandroid.musicplayer;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,8 +70,16 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
         });
 
         holder.mTextView.setText(mDataset.get(position).name);
-        holder.mDuration.setText(String.valueOf(mDataset.get(position).duration));
+        holder.mDuration.setText(msToString(mDataset.get(position).duration));
 
+    }
+
+
+    @SuppressLint("DefaultLocale")
+    private String msToString(long ms) {
+        long seconds = (ms / 1000) % 60;
+        long minutes = ms / 1000 / 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

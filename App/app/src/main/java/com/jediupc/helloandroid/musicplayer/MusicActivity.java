@@ -9,11 +9,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.SeekBar;
 
 import com.jediupc.helloandroid.R;
 
@@ -33,6 +34,7 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
     private MusicAdapter mAdapter;
     private ArrayList<MusicModel> mMusic;
     private boolean mPlaying;
+    private AppCompatSeekBar mSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,30 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
         mRecyclerView = findViewById(R.id.recyclerView);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mSeekBar = findViewById(R.id.seekBar);
+        mSeekBar.setMax(100);
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    Intent i = new Intent(MusicActivity.this, MusicService.class);
+                    i.setAction(MusicService.ACTION_SEEK);
+                    i.putExtra("position", progress);
+                    startService(i);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
 
         mBPrev.setOnClickListener(this);
@@ -137,6 +163,12 @@ public class MusicActivity extends AppCompatActivity implements View.OnClickList
                 : R.drawable.ic_play;
         Drawable d = getResources().getDrawable(id);
         mBPlay.setImageDrawable(d);
+    }
+
+
+    @Subscribe
+    public void onTicksEvent(TicksEvent te) {
+        mSeekBar.setProgress((int) (100 * te.position / te.duration));
     }
 
     @Override

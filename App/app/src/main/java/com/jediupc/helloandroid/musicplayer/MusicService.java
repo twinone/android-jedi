@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
@@ -29,15 +30,31 @@ public class MusicService extends Service {
     public static final String ACTION_NEXT = "action_next";
     public static final String ACTION_PERMISSION_GRANTED = "action_permission_granted";
     public static final String ACTION_GET_STATE = "action_get_state";
+    public static final String ACTION_SEEK = "action_seek";
 
 
     private static final String CHANNEL_ID = "default";
     private static final int NOTIFICATION_ID = 42;
 
+
+    Handler mHandler = new Handler();
+
     int mPos = -1;
 
     MediaPlayer mMediaPlayer;
     private ArrayList<MusicModel> mMusic;
+    private Runnable mUpdateTicksRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isPlaying()) {
+                TicksEvent te = new TicksEvent();
+                te.position = mMediaPlayer.getCurrentPosition();
+                te.duration = mMediaPlayer.getDuration();
+                EventBus.getDefault().post(te);
+            }
+            mHandler.postDelayed(mUpdateTicksRunnable, 500);
+        }
+    };
 
     public MusicService() {
     }
@@ -59,6 +76,14 @@ public class MusicService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_NOT_STICKY;
         if (intent.getAction() == null) return START_NOT_STICKY;
+
+        if (intent.getAction().equals(ACTION_SEEK)) {
+            if (isPlaying()) {
+                int pos = intent.getIntExtra("position", 0);
+                mMediaPlayer.seekTo(mMediaPlayer.getDuration() * pos / 100);
+            }
+        }
+
 
         if (intent.getAction().equals(ACTION_GET_STATE)) {
             EventBus.getDefault().post(isPlaying());
@@ -97,6 +122,7 @@ public class MusicService extends Service {
             stopMusic();
         }
 
+        mHandler.post(mUpdateTicksRunnable);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -118,8 +144,9 @@ public class MusicService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "default";
             String description = "default";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setSound(null, null);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -129,7 +156,14 @@ public class MusicService extends Service {
     }
 
     private void startMusic() {
+        if (mMediaPlayer == null) return;
         if (!isPlaying()) mMediaPlayer.start();
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                stopMusic();
+            }
+        });
         updateNotification();
         EventBus.getDefault().post(true);
     }
@@ -148,8 +182,9 @@ public class MusicService extends Service {
                 .setContentText(mMusic.get(mPos).name)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentIntent(pendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setAutoCancel(false)
+                .setSound(null)
                 .setOngoing(isPlaying())
                 .addAction(0, "Prev", getPendingIntent(ACTION_PREVIOUS))
                 .addAction(0, actionTitle, piAction)
@@ -160,12 +195,12 @@ public class MusicService extends Service {
 
         // notificationId is a unique int for each notification that you must define
 
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
 
         if (isPlaying()) {
             startForeground(NOTIFICATION_ID, builder.build());
         } else {
             stopForeground(false);
-            notificationManager.notify(NOTIFICATION_ID, builder.build());
         }
 
     }
