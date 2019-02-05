@@ -1,6 +1,8 @@
 package com.jediupc.helloandroid.gallery;
 
-public class GalleryModel {
+import java.io.Serializable;
+
+public class GalleryModel implements Serializable {
     public String previewURL;
     public String largeImageURL;
 }

@@ -1,15 +1,20 @@
 package com.jediupc.helloandroid.gallery;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -20,7 +25,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.jediupc.helloandroid.MyAdapter;
 import com.jediupc.helloandroid.R;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GalleryActivity extends AppCompatActivity {
 
@@ -32,6 +42,8 @@ public class GalleryActivity extends AppCompatActivity {
 
     RequestQueue queue;
     private GalleryAdapter mAdapter;
+    private ActionMode mActionMode;
+    private ArrayList<GalleryModel> mDataset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +117,28 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     private void onIndexLoaded(PixabayResp pr) {
-        mAdapter = new GalleryAdapter(pr.hits, new GalleryAdapter.OnItemClickListener() {
+        mDataset = pr.hits;
+        mAdapter = new GalleryAdapter(mDataset, new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int pos) {
+                if (mActionMode != null && mAdapter.getSelectedPositions().size() == 0) {
+                    mActionMode.finish();
+                    return;
+                }
 
+                if (mActionMode == null) {
+                    Intent i = new Intent(GalleryActivity.this, GalleryDetailActivity.class);
+                    i.putExtra("model", mDataset.get(pos));
+                    startActivity(i);
+                }
+
+            }
+
+            @Override
+            public boolean onItemLongClick(View v, int pos) {
+                Log.d("Gallery", "OnLongClick");
+                startSupportActionMode(mCallback);
+                return true;
             }
         });
         Log.d("GalleryAdapter", "Test" + String.valueOf(pr.hits.size()));
@@ -120,5 +150,61 @@ public class GalleryActivity extends AppCompatActivity {
         return String.format(URL, KEY, 100, q);
     }
 
+
+    private ActionMode.Callback mCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            actionMode.getMenuInflater().inflate(R.menu.gallery_context, menu);
+            mAdapter.setContextMode(true);
+            mActionMode = actionMode;
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+
+            switch (menuItem.getItemId()) {
+                case R.id.gallery_remove:
+                    ArrayList<GalleryModel> tmp = new ArrayList<>();
+                    for (int i = 0; i < mDataset.size(); i++) {
+                        if (!mAdapter.getSelectedPositions().contains(i)) {
+                            tmp.add(mDataset.get(i));
+                        }
+                    }
+                    mDataset.clear();
+                    mDataset.addAll(tmp);
+                    mActionMode.finish();
+                    mAdapter.notifyDataSetChanged();
+                    break;
+                case R.id.gallery_share:
+                    break;
+                case R.id.gallery_select_all:
+                    if (mAdapter.getSelectedPositions().size() == mDataset.size()) {
+                        mAdapter.getSelectedPositions().clear();
+                        // don't finish action mode here
+                    } else {
+                        for (int i = 0; i < mDataset.size(); i++) {
+                            mAdapter.getSelectedPositions().add(i);
+                        }
+                    }
+                    mAdapter.notifyDataSetChanged();
+                    break;
+
+            }
+
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            mAdapter.setContextMode(false);
+            mActionMode = null;
+        }
+    };
 
 }

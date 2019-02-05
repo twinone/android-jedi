@@ -15,10 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".gallery.GalleryDetailActivity"></activity>
         <activity
             android:name=".gallery.GalleryActivity"
             android:label="@string/title_activity_gallery"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service
             android:name=".musicplayer.MusicService"
