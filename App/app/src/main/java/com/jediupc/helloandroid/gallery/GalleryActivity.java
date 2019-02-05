@@ -1,9 +1,13 @@
 package com.jediupc.helloandroid.gallery;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -22,6 +26,7 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
@@ -36,11 +41,11 @@ import com.jediupc.helloandroid.R;
 
 import java.util.ArrayList;
 
-import static android.view.View.GONE;
 
 // https://mikescamell.com/shared-element-transitions-part-4-recyclerview/index.html
 public class GalleryActivity extends AppCompatActivity {
 
+    private static final int ANIM_DURATION = 300;
 
     public static final String URL = "https://pixabay.com/api/?key=%s&per_page=%d&q=%s";
     public static final String KEY = "11493999-a774b162550f62ff72820dc2e";
@@ -70,7 +75,7 @@ public class GalleryActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (mPager.getVisibility() == View.VISIBLE) {
                     ((GalleryItemFragment) mPagerAdapter.getRegisteredFragment(mPager.getCurrentItem())).send();
-                    Log.d("What", mPager.getCurrentItem()+"");
+                    Log.d("What", mPager.getCurrentItem() + "");
                 } else {
                     queryInput();
                 }
@@ -111,6 +116,7 @@ public class GalleryActivity extends AppCompatActivity {
             registeredFragments.put(position, fragment);
             return fragment;
         }
+
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             registeredFragments.remove(position);
@@ -166,8 +172,7 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mPager.getVisibility() == View.VISIBLE) {
-            mPager.setVisibility(GONE);
-            mFAB.hide();
+            hideViewPager();
         } else {
             super.onBackPressed();
         }
@@ -201,13 +206,14 @@ public class GalleryActivity extends AppCompatActivity {
         mAdapter = new GalleryAdapter(mDataset, new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int pos) {
+
                 if (mActionMode != null && mAdapter.getSelectedPositions().size() == 0) {
                     mActionMode.finish();
                     return;
                 }
 
                 if (mActionMode == null) {
-                    openImageDetails(pos);
+                    openImageDetails(v, pos);
                 }
 
             }
@@ -224,10 +230,75 @@ public class GalleryActivity extends AppCompatActivity {
         mPagerAdapter.notifyDataSetChanged();
     }
 
-    private void openImageDetails(int position) {
+    private void openImageDetails(View v, int position) {
         mPager.setCurrentItem(position, false);
+
+        showViewPager(v);
+    }
+
+    // https://developer.android.com/training/animation/reveal-or-hide-view#Reveal
+    private void showViewPager(View v) {
         mPager.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int cx = v.getLeft() + v.getWidth() / 2;
+            int cy = v.getTop() + v.getHeight() / 2;
+            float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
+
+            Log.d("Hypot", "cx, w " + cx + " " + mPager.getWidth());
+            int xmax = Math.max(cx, ((View) v.getParent()).getWidth() - cx);
+            int ymax = Math.max(cy, ((View) v.getParent()).getHeight() - cy);
+
+            float finalRadius = (float) Math.hypot(xmax, ymax);
+
+            Animator anim = ViewAnimationUtils.createCircularReveal(mPager, cx, cy, smallR / 2, finalRadius);
+            anim.setDuration(ANIM_DURATION);
+            anim.start();
+        }
+
+
         mFAB.show();
+    }
+
+    private void hideViewPager() {
+        final int current = mPager.getCurrentItem();
+        mRecyclerView.scrollToPosition(current);
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                View v = mRecyclerView.getLayoutManager().findViewByPosition(current);
+
+                mPager.setVisibility(View.VISIBLE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    int cx = v.getLeft() + v.getWidth() / 2;
+                    int cy = v.getTop() + v.getHeight() / 2;
+
+                    float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
+                    Log.d("Hypot", "cx, w " + cx + " " + mPager.getWidth());
+                    int xmax = Math.max(cx, ((View) v.getParent()).getWidth() - cx);
+                    int ymax = Math.max(cy, ((View) v.getParent()).getHeight() - cy);
+
+                    float finalRadius = (float) Math.hypot(xmax, ymax);
+
+                    Animator anim = ViewAnimationUtils.createCircularReveal(mPager, cx, cy, finalRadius, smallR / 2);
+                    anim.setDuration(ANIM_DURATION);
+                    anim.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mPager.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    anim.start();
+                } else {
+                    mPager.setVisibility(View.GONE);
+                }
+
+
+                mFAB.hide();
+            }
+        });
+
     }
 
     private String getQueryURL(String q) {
