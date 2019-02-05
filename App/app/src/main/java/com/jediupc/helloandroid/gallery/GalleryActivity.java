@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,7 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
@@ -40,6 +42,9 @@ import com.google.gson.Gson;
 import com.jediupc.helloandroid.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 
 // https://mikescamell.com/shared-element-transitions-part-4-recyclerview/index.html
@@ -103,12 +108,20 @@ public class GalleryActivity extends AppCompatActivity {
 
         getIndex("cat");
         mFAB.hide();
+        enableDragDrop();
     }
 
 
-    public class MyPagerAdapter extends FragmentPagerAdapter {
+    public class MyPagerAdapter extends FragmentStatePagerAdapter {
 
         SparseArray<Fragment> registeredFragments = new SparseArray<>();
+
+
+        // yet another ugly android hack
+        // https://stackoverflow.com/a/7287121
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
@@ -209,6 +222,8 @@ public class GalleryActivity extends AppCompatActivity {
 
                 if (mActionMode != null && mAdapter.getSelectedPositions().size() == 0) {
                     mActionMode.finish();
+                    mAdapter.notifyDataSetChanged();
+                    mPagerAdapter.notifyDataSetChanged();
                     return;
                 }
 
@@ -326,16 +341,22 @@ public class GalleryActivity extends AppCompatActivity {
 
             switch (menuItem.getItemId()) {
                 case R.id.gallery_remove:
-                    ArrayList<GalleryModel> tmp = new ArrayList<>();
-                    for (int i = 0; i < mDataset.size(); i++) {
-                        if (!mAdapter.getSelectedPositions().contains(i)) {
-                            tmp.add(mDataset.get(i));
+                    List<Integer> positions = new ArrayList<>(mAdapter.getSelectedPositions());
+                    Collections.sort(positions, new Comparator<Integer>() {
+                        @Override
+                        public int compare(Integer o1, Integer o2) {
+                            return o2 - o1;
                         }
+                    });
+                    for (int pos : positions) {
+                        Log.d("Data", "remove" + pos);
+                        mDataset.remove(pos);
+                        mAdapter.notifyItemRemoved(pos);
                     }
-                    mDataset.clear();
-                    mDataset.addAll(tmp);
-                    mActionMode.finish();
+                    mAdapter.getSelectedPositions().clear();
+                    mPagerAdapter.notifyDataSetChanged();
                     mAdapter.notifyDataSetChanged();
+                    mActionMode.finish();
                     break;
 
                 case R.id.gallery_select_all:
@@ -361,5 +382,64 @@ public class GalleryActivity extends AppCompatActivity {
             mActionMode = null;
         }
     };
+
+
+    private void enableDragDrop() {
+        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-b9456d2b1aaf
+        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-6a6f0c422efd
+        ItemTouchHelper ith = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+
+            private boolean mOrderChanged = false;
+
+            @Override
+            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+                super.onSelectedChanged(viewHolder, actionState);
+
+                if (actionState == ItemTouchHelper.ACTION_STATE_IDLE && !mOrderChanged) {
+                    mOrderChanged = false;
+                }
+            }
+
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END;
+                return makeMovementFlags(dragFlags, 0);
+            }
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder source, @NonNull RecyclerView.ViewHolder target) {
+                mAdapter.onItemMove(source.getAdapterPosition(),
+                        target.getAdapterPosition());
+                mOrderChanged = true;
+                if (mActionMode != null) mActionMode.finish();
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return true;
+            }
+
+            @Override
+            public boolean isItemViewSwipeEnabled() {
+                return false;
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                mOrderChanged = false;
+                mAdapter.notifyDataSetChanged();
+                mPagerAdapter.notifyDataSetChanged();
+            }
+        });
+
+        ith.attachToRecyclerView(mRecyclerView);
+    }
 
 }

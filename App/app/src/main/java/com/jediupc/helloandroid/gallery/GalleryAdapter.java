@@ -10,13 +10,15 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.jediupc.helloandroid.ItemTouchHelperAdapter;
 import com.jediupc.helloandroid.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHolder> {
+public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHolder> implements ItemTouchHelperAdapter {
     private final OnItemClickListener mListener;
     private ArrayList<GalleryModel> mDataset;
     private Set<Integer> mSelectedPositions = new HashSet<>();
@@ -29,10 +31,30 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
 
     public void setContextMode(boolean mode) {
         mContextEnabled = mode;
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
         if (!mContextEnabled) {
             mSelectedPositions = new HashSet<>();
         }
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(mDataset, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(mDataset, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        mDataset.remove(position);
+        notifyItemRemoved(position);
     }
 
     public interface OnItemClickListener {
