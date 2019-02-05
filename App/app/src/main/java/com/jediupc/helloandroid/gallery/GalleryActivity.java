@@ -4,7 +4,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -12,10 +18,11 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.ContextMenu;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.android.volley.Request;
@@ -25,13 +32,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.jediupc.helloandroid.MyAdapter;
 import com.jediupc.helloandroid.R;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 
+import static android.view.View.GONE;
+
+// https://mikescamell.com/shared-element-transitions-part-4-recyclerview/index.html
 public class GalleryActivity extends AppCompatActivity {
 
 
@@ -44,6 +51,11 @@ public class GalleryActivity extends AppCompatActivity {
     private GalleryAdapter mAdapter;
     private ActionMode mActionMode;
     private ArrayList<GalleryModel> mDataset;
+    private ViewPager mPager;
+
+    // https://guides.codepath.com/android/viewpager-with-fragmentpageradapter
+    private MyPagerAdapter mPagerAdapter;
+    private FloatingActionButton mFAB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +64,16 @@ public class GalleryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFAB = findViewById(R.id.fab);
+        mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                queryInput();
+                if (mPager.getVisibility() == View.VISIBLE) {
+                    ((GalleryItemFragment) mPagerAdapter.getRegisteredFragment(mPager.getCurrentItem())).send();
+                    Log.d("What", mPager.getCurrentItem()+"");
+                } else {
+                    queryInput();
+                }
 
             }
         });
@@ -75,8 +92,59 @@ public class GalleryActivity extends AppCompatActivity {
 
         queue = Volley.newRequestQueue(this);
 
+        mPager = findViewById(R.id.viewPager);
+        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+
         getIndex("cat");
+        mFAB.hide();
     }
+
+
+    public class MyPagerAdapter extends FragmentPagerAdapter {
+
+        SparseArray<Fragment> registeredFragments = new SparseArray<>();
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+        }
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public Fragment getRegisteredFragment(int position) {
+            return registeredFragments.get(position);
+        }
+
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+
+        @Override
+        public Fragment getItem(int i) {
+            GalleryModel gm = mDataset.get(i);
+            return GalleryItemFragment.newInstance(gm, i);
+        }
+
+        @Override
+        public int getCount() {
+            if (mDataset == null) return 0;
+            return mDataset.size();
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Image Detail" + String.valueOf(position);
+        }
+    }
+
 
     private void queryInput() {
         final EditText et = new EditText(this);
@@ -93,6 +161,18 @@ public class GalleryActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mPager.getVisibility() == View.VISIBLE) {
+            mPager.setVisibility(GONE);
+            mFAB.hide();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
 
     private void getIndex(String q) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, getQueryURL(q),
@@ -127,9 +207,7 @@ public class GalleryActivity extends AppCompatActivity {
                 }
 
                 if (mActionMode == null) {
-                    Intent i = new Intent(GalleryActivity.this, GalleryDetailActivity.class);
-                    i.putExtra("model", mDataset.get(pos));
-                    startActivity(i);
+                    openImageDetails(pos);
                 }
 
             }
@@ -143,6 +221,13 @@ public class GalleryActivity extends AppCompatActivity {
         });
         Log.d("GalleryAdapter", "Test" + String.valueOf(pr.hits.size()));
         mRecyclerView.setAdapter(mAdapter);
+        mPagerAdapter.notifyDataSetChanged();
+    }
+
+    private void openImageDetails(int position) {
+        mPager.setCurrentItem(position, false);
+        mPager.setVisibility(View.VISIBLE);
+        mFAB.show();
     }
 
     private String getQueryURL(String q) {
@@ -181,6 +266,7 @@ public class GalleryActivity extends AppCompatActivity {
                     mActionMode.finish();
                     mAdapter.notifyDataSetChanged();
                     break;
+
                 case R.id.gallery_select_all:
                     if (mAdapter.getSelectedPositions().size() == mDataset.size()) {
                         mAdapter.getSelectedPositions().clear();

@@ -79,8 +79,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
+        GalleryModel gm = mDataset.get(position);
+
+
         holder.mRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,9 +108,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
                 return mListener.onItemLongClick(view, position);
             }
         });
-
-        // TODO load into imageView
-        GalleryModel gm = mDataset.get(position);
 
         Log.d("Gallery", "URL: " + gm.previewURL);
 
