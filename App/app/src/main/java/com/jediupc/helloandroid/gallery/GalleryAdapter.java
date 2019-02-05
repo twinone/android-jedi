@@ -90,7 +90,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
                     } else {
                         mSelectedPositions.add(position);
                     }
-                    notifyDataSetChanged();
+                    notifyItemChanged(position);
                 }
 
                 mListener.onItemClick(view, position);

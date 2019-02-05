@@ -181,8 +181,6 @@ public class GalleryActivity extends AppCompatActivity {
                     mActionMode.finish();
                     mAdapter.notifyDataSetChanged();
                     break;
-                case R.id.gallery_share:
-                    break;
                 case R.id.gallery_select_all:
                     if (mAdapter.getSelectedPositions().size() == mDataset.size()) {
                         mAdapter.getSelectedPositions().clear();

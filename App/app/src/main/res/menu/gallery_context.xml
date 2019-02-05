@@ -9,11 +9,6 @@
         android:title="Select All"
         app:showAsAction="always" />
     <item
-        android:id="@+id/gallery_share"
-        android:icon="@drawable/ic_share"
-        android:title="Share"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/gallery_remove"
         android:icon="@drawable/ic_delete"
         android:title="Delete"
