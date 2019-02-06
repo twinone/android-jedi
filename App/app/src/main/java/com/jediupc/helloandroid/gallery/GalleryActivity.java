@@ -66,6 +66,9 @@ public class GalleryActivity extends AppCompatActivity {
     // https://guides.codepath.com/android/viewpager-with-fragmentpageradapter
     private MyPagerAdapter mPagerAdapter;
     private FloatingActionButton mFAB;
+    private ItemTouchHelper mItemHelper;
+    private boolean mOrderChanged = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -380,6 +383,10 @@ public class GalleryActivity extends AppCompatActivity {
         public void onDestroyActionMode(ActionMode actionMode) {
             mAdapter.setContextMode(false);
             mActionMode = null;
+            if (!mOrderChanged) {
+                mAdapter.notifyDataSetChanged();
+                mPagerAdapter.notifyDataSetChanged();
+            }
         }
     };
 
@@ -387,9 +394,8 @@ public class GalleryActivity extends AppCompatActivity {
     private void enableDragDrop() {
         // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-b9456d2b1aaf
         // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-6a6f0c422efd
-        ItemTouchHelper ith = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+        mItemHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
 
-            private boolean mOrderChanged = false;
 
             @Override
             public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
@@ -439,7 +445,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
         });
 
-        ith.attachToRecyclerView(mRecyclerView);
+        mItemHelper.attachToRecyclerView(mRecyclerView);
     }
 
 }
