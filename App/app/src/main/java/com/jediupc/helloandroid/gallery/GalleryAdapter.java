@@ -10,15 +10,13 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.jediupc.helloandroid.ItemTouchHelperAdapter;
 import com.jediupc.helloandroid.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHolder> implements ItemTouchHelperAdapter {
+public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHolder> {
     private final OnItemClickListener mListener;
     private ArrayList<GalleryModel> mDataset;
     private Set<Integer> mSelectedPositions = new HashSet<>();
@@ -31,30 +29,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
 
     public void setContextMode(boolean mode) {
         mContextEnabled = mode;
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
         if (!mContextEnabled) {
             mSelectedPositions = new HashSet<>();
         }
-    }
-
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(mDataset, i, i + 1);
-            }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(mDataset, i, i - 1);
-            }
-        }
-        notifyItemMoved(fromPosition, toPosition);
-    }
-
-    @Override
-    public void onItemDismiss(int position) {
-        mDataset.remove(position);
-        notifyItemRemoved(position);
     }
 
     public interface OnItemClickListener {
@@ -100,20 +78,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
-        GalleryModel gm = mDataset.get(position);
-
-
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+        // - get element from your dataset at this position
+        // - replace the contents of the view with that element
         holder.mRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mContextEnabled) {
-                    if (mSelectedPositions.contains(position)) {
-                        mSelectedPositions.remove(position);
+                    if (mSelectedPositions.contains(holder.getAdapterPosition())) {
+                        mSelectedPositions.remove(holder.getAdapterPosition());
                     } else {
-                        mSelectedPositions.add(position);
+                        mSelectedPositions.add(holder.getAdapterPosition());
                     }
-                    notifyItemChanged(position);
+                    notifyDataSetChanged();
                 }
 
                 mListener.onItemClick(view, position);
@@ -130,6 +107,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
                 return mListener.onItemLongClick(view, position);
             }
         });
+
+        // TODO load into imageView
+        GalleryModel gm = mDataset.get(position);
 
         Log.d("Gallery", "URL: " + gm.previewURL);
 

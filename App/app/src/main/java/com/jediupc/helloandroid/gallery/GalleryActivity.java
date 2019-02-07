@@ -8,12 +8,10 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -22,9 +20,9 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,54 +36,96 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.gson.Gson;
+import com.jediupc.helloandroid.MyAdapter;
 import com.jediupc.helloandroid.R;
+import com.jediupc.helloandroid.model.ModelContainer;
+import com.jediupc.helloandroid.musicplayer.MusicAdapter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
-
-// https://mikescamell.com/shared-element-transitions-part-4-recyclerview/index.html
 public class GalleryActivity extends AppCompatActivity {
 
-    private static final int ANIM_DURATION = 300;
 
     public static final String URL = "https://pixabay.com/api/?key=%s&per_page=%d&q=%s";
     public static final String KEY = "11493999-a774b162550f62ff72820dc2e";
+    private static final long ANIM_DURATION = 1500;
 
     private RecyclerView mRecyclerView;
+
+    private String mQuery = "cat";
 
     RequestQueue queue;
     private GalleryAdapter mAdapter;
     private ActionMode mActionMode;
     private ArrayList<GalleryModel> mDataset;
-    private ViewPager mPager;
+    private ViewPager mViewPager;
+    private MyPagerAdapter mViewPagerAdapter;
 
-    // https://guides.codepath.com/android/viewpager-with-fragmentpageradapter
-    private MyPagerAdapter mPagerAdapter;
-    private FloatingActionButton mFAB;
-    private ItemTouchHelper mItemHelper;
-    private boolean mOrderChanged = false;
+    private AdView mAdView;
+    private ModelContainer mModel;
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("q", mQuery);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        MobileAds.initialize(this, "ca-app-pub-5756278739960648~1971385974");
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        Log.d("Ads", "Hello!");
+
+        mModel  = ModelContainer.load(this);
+        mModel.print();
+
+
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                Log.d("Ads", "Loaded!");
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+                Log.d("Ads", "Failed :(");
+
+            }
+        });
+        mAdView.loadAd(adRequest);
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFAB = findViewById(R.id.fab);
-        mFAB.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPager.getVisibility() == View.VISIBLE) {
-                    ((GalleryItemFragment) mPagerAdapter.getRegisteredFragment(mPager.getCurrentItem())).send();
-                    Log.d("What", mPager.getCurrentItem() + "");
-                } else {
-                    queryInput();
+                //queryInput();
+
+                if (mViewPager.getVisibility() == View.VISIBLE) {
+                    GalleryItemFragment gif = (GalleryItemFragment) mViewPagerAdapter
+                            .getRegisteredFragment(mViewPager.getCurrentItem());
+
+                    gif.send();
+
                 }
 
             }
@@ -93,6 +133,7 @@ public class GalleryActivity extends AppCompatActivity {
 
 
         mRecyclerView = findViewById(R.id.recyclerView);
+        mViewPager = findViewById(R.id.viewPager);
 
         int cols =
                 getResources().getConfiguration().orientation
@@ -105,68 +146,19 @@ public class GalleryActivity extends AppCompatActivity {
 
         queue = Volley.newRequestQueue(this);
 
-        mPager = findViewById(R.id.viewPager);
-        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
-
-        getIndex("cat");
-        mFAB.hide();
-        enableDragDrop();
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("q"))
+                savedInstanceState.getString("q");
+        }
+        getIndex(mQuery);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
 
-    public class MyPagerAdapter extends FragmentStatePagerAdapter {
-
-        SparseArray<Fragment> registeredFragments = new SparseArray<>();
-
-
-        // yet another ugly android hack
-        // https://stackoverflow.com/a/7287121
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Fragment fragment = (Fragment) super.instantiateItem(container, position);
-            registeredFragments.put(position, fragment);
-            return fragment;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            registeredFragments.remove(position);
-            super.destroyItem(container, position, object);
-        }
-
-        public Fragment getRegisteredFragment(int position) {
-            return registeredFragments.get(position);
-        }
-
-        public MyPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-
-        @Override
-        public Fragment getItem(int i) {
-            GalleryModel gm = mDataset.get(i);
-            return GalleryItemFragment.newInstance(gm, i);
-        }
-
-        @Override
-        public int getCount() {
-            if (mDataset == null) return 0;
-            return mDataset.size();
-        }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "Image Detail" + String.valueOf(position);
-        }
+        mModel.save(this);
     }
-
 
     private void queryInput() {
         final EditText et = new EditText(this);
@@ -183,17 +175,6 @@ public class GalleryActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
-
-
-    @Override
-    public void onBackPressed() {
-        if (mPager.getVisibility() == View.VISIBLE) {
-            hideViewPager();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
 
     private void getIndex(String q) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, getQueryURL(q),
@@ -219,19 +200,18 @@ public class GalleryActivity extends AppCompatActivity {
 
     private void onIndexLoaded(PixabayResp pr) {
         mDataset = pr.hits;
+
         mAdapter = new GalleryAdapter(mDataset, new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int pos) {
-
                 if (mActionMode != null && mAdapter.getSelectedPositions().size() == 0) {
                     mActionMode.finish();
-                    mAdapter.notifyDataSetChanged();
-                    mPagerAdapter.notifyDataSetChanged();
                     return;
                 }
 
                 if (mActionMode == null) {
-                    openImageDetails(v, pos);
+                    mViewPager.setCurrentItem(pos, false);
+                    showViewPager(v);
                 }
 
             }
@@ -245,78 +225,10 @@ public class GalleryActivity extends AppCompatActivity {
         });
         Log.d("GalleryAdapter", "Test" + String.valueOf(pr.hits.size()));
         mRecyclerView.setAdapter(mAdapter);
-        mPagerAdapter.notifyDataSetChanged();
-    }
-
-    private void openImageDetails(View v, int position) {
-        mPager.setCurrentItem(position, false);
-
-        showViewPager(v);
-    }
-
-    // https://developer.android.com/training/animation/reveal-or-hide-view#Reveal
-    private void showViewPager(View v) {
-        mPager.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int cx = v.getLeft() + v.getWidth() / 2;
-            int cy = v.getTop() + v.getHeight() / 2;
-            float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
-
-            Log.d("Hypot", "cx, w " + cx + " " + mPager.getWidth());
-            int xmax = Math.max(cx, ((View) v.getParent()).getWidth() - cx);
-            int ymax = Math.max(cy, ((View) v.getParent()).getHeight() - cy);
-
-            float finalRadius = (float) Math.hypot(xmax, ymax);
-
-            Animator anim = ViewAnimationUtils.createCircularReveal(mPager, cx, cy, smallR / 2, finalRadius);
-            anim.setDuration(ANIM_DURATION);
-            anim.start();
-        }
 
 
-        mFAB.show();
-    }
-
-    private void hideViewPager() {
-        final int current = mPager.getCurrentItem();
-        mRecyclerView.scrollToPosition(current);
-
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                View v = mRecyclerView.getLayoutManager().findViewByPosition(current);
-
-                mPager.setVisibility(View.VISIBLE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    int cx = v.getLeft() + v.getWidth() / 2;
-                    int cy = v.getTop() + v.getHeight() / 2;
-
-                    float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
-                    Log.d("Hypot", "cx, w " + cx + " " + mPager.getWidth());
-                    int xmax = Math.max(cx, ((View) v.getParent()).getWidth() - cx);
-                    int ymax = Math.max(cy, ((View) v.getParent()).getHeight() - cy);
-
-                    float finalRadius = (float) Math.hypot(xmax, ymax);
-
-                    Animator anim = ViewAnimationUtils.createCircularReveal(mPager, cx, cy, finalRadius, smallR / 2);
-                    anim.setDuration(ANIM_DURATION);
-                    anim.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            mPager.setVisibility(View.INVISIBLE);
-                        }
-                    });
-                    anim.start();
-                } else {
-                    mPager.setVisibility(View.GONE);
-                }
-
-
-                mFAB.hide();
-            }
-        });
-
+        mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mViewPagerAdapter);
     }
 
     private String getQueryURL(String q) {
@@ -342,38 +254,22 @@ public class GalleryActivity extends AppCompatActivity {
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 
-            switch (menuItem.getItemId()) {
-                case R.id.gallery_remove:
-                    List<Integer> positions = new ArrayList<>(mAdapter.getSelectedPositions());
-                    Collections.sort(positions, new Comparator<Integer>() {
-                        @Override
-                        public int compare(Integer o1, Integer o2) {
-                            return o2 - o1;
-                        }
-                    });
-                    for (int pos : positions) {
-                        Log.d("Data", "remove" + pos);
-                        mDataset.remove(pos);
-                        mAdapter.notifyItemRemoved(pos);
+            if (menuItem.getItemId() == R.id.gallery_remove) {
+                mModel.removed += mAdapter.getSelectedPositions().size();
+                List<Integer> positions = new ArrayList<>(mAdapter.getSelectedPositions());
+                Collections.sort(positions, new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer o1, Integer o2) {
+                        return o2 - o1;
                     }
-                    mAdapter.getSelectedPositions().clear();
-                    mPagerAdapter.notifyDataSetChanged();
-                    mAdapter.notifyDataSetChanged();
-                    mActionMode.finish();
-                    break;
-
-                case R.id.gallery_select_all:
-                    if (mAdapter.getSelectedPositions().size() == mDataset.size()) {
-                        mAdapter.getSelectedPositions().clear();
-                        // don't finish action mode here
-                    } else {
-                        for (int i = 0; i < mDataset.size(); i++) {
-                            mAdapter.getSelectedPositions().add(i);
-                        }
-                    }
-                    mAdapter.notifyDataSetChanged();
-                    break;
-
+                });
+                for (int pos : positions) {
+                    mDataset.remove(pos);
+                    mAdapter.notifyItemRemoved(pos);
+                }
+                mAdapter.getSelectedPositions().clear();
+                mViewPagerAdapter.notifyDataSetChanged();
+                mActionMode.finish();
             }
 
             return true;
@@ -383,69 +279,119 @@ public class GalleryActivity extends AppCompatActivity {
         public void onDestroyActionMode(ActionMode actionMode) {
             mAdapter.setContextMode(false);
             mActionMode = null;
-            if (!mOrderChanged) {
-                mAdapter.notifyDataSetChanged();
-                mPagerAdapter.notifyDataSetChanged();
-            }
         }
     };
 
+    public class MyPagerAdapter extends FragmentStatePagerAdapter {
 
-    private void enableDragDrop() {
-        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-b9456d2b1aaf
-        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-6a6f0c422efd
-        mItemHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+        private SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
 
+        // yet another ugly android hack
+        // https://stackoverflow.com/a/7287121
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public Fragment getRegisteredFragment(int position) {
+            return registeredFragments.get(position);
+        }
+
+
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            GalleryModel gm = mDataset.get(i);
+            return GalleryItemFragment.newInstance(gm, i);
+        }
+
+        @Override
+        public int getCount() {
+            if (mDataset == null) return 0;
+            return mDataset.size();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mViewPager.getVisibility() == View.VISIBLE) {
+            hideViewPager();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    // https://developer.android.com/training/animation/reveal-or-hide-view#Reveal
+    private void showViewPager(View v) {
+        mViewPager.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int cx = v.getLeft() + v.getWidth() / 2;
+            int cy = v.getTop() + v.getHeight() / 2;
+            float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
+
+            int xmax = Math.max(cx, ((View) v.getParent()).getWidth() - cx);
+            int ymax = Math.max(cy, ((View) v.getParent()).getHeight() - cy);
+
+            float finalRadius = (float) Math.hypot(xmax, ymax);
+
+            Animator anim = ViewAnimationUtils.createCircularReveal(mViewPager, cx, cy, smallR / 2, finalRadius);
+            anim.setDuration(ANIM_DURATION);
+            anim.start();
+        }
+    }
+
+    private void hideViewPager() {
+        final int current = mViewPager.getCurrentItem();
+        mRecyclerView.scrollToPosition(current);
+
+        new Handler().post(new Runnable() {
             @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-                super.onSelectedChanged(viewHolder, actionState);
+            public void run() {
+                View v = mRecyclerView.getLayoutManager().findViewByPosition(current);
 
-                if (actionState == ItemTouchHelper.ACTION_STATE_IDLE && !mOrderChanged) {
-                    mOrderChanged = false;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    int cx = v.getLeft() + v.getWidth() / 2;
+                    int cy = v.getTop() + v.getHeight() / 2;
+
+                    float smallR = (float) Math.hypot(v.getWidth(), v.getHeight());
+                    Log.d("Hypot", "cx, w " + cx + " " + mViewPager.getWidth());
+                    int xmax = Math.max(cx, mRecyclerView.getWidth() - cx);
+                    int ymax = Math.max(cy, mRecyclerView.getHeight() - cy);
+
+                    float finalRadius = (float) Math.hypot(xmax, ymax);
+
+                    Animator anim = ViewAnimationUtils.createCircularReveal(
+                            mViewPager, cx, cy, finalRadius, smallR / 2);
+                    anim.setDuration(ANIM_DURATION);
+                    anim.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mViewPager.setVisibility(View.GONE);
+                        }
+                    });
+                    anim.start();
+                } else {
+                    mViewPager.setVisibility(View.GONE);
                 }
-            }
-
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END;
-                return makeMovementFlags(dragFlags, 0);
-            }
-
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder source, @NonNull RecyclerView.ViewHolder target) {
-                mAdapter.onItemMove(source.getAdapterPosition(),
-                        target.getAdapterPosition());
-                mOrderChanged = true;
-                if (mActionMode != null) mActionMode.finish();
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-                mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return true;
-            }
-
-            @Override
-            public boolean isItemViewSwipeEnabled() {
-                return false;
-            }
-
-            @Override
-            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-                mOrderChanged = false;
-                mAdapter.notifyDataSetChanged();
-                mPagerAdapter.notifyDataSetChanged();
             }
         });
 
-        mItemHelper.attachToRecyclerView(mRecyclerView);
     }
-
 }

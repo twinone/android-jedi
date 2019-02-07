@@ -50,5 +50,3 @@ Es complicado dar la libertad de que hagáis lo que queráis como proyecto y a l
   - Calidad del código: hay variables sin usar? cosas que se repiten 30 veces y no estan en una función?
 
   
-#### Entrega
-El proyecto se entragará antes del Jueves, 14 de Febrero, a las 12:00.

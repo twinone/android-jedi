@@ -2,17 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-    <item
-        android:id="@+id/gallery_select_all"
-        android:icon="@drawable/ic_select_all"
-        android:title="Select All"
-        app:showAsAction="always" />
     <item
         android:id="@+id/gallery_remove"
-        android:icon="@drawable/ic_delete"
-        android:title="Delete"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        android:icon="@drawable/ic_pause"
+        android:title="Test" />
 
 
 </menu>

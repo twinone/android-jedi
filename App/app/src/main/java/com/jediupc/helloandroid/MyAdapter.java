@@ -1,6 +1,7 @@
 package com.jediupc.helloandroid;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> implements ItemTouchHelperAdapter {
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> implements ListActivity.ItemTouchHelperAdapter {
     private final OnItemClickListener mListener;
     private ArrayList<MenuItem> mDataset;
 
@@ -19,12 +20,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> impl
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mDataset, i, i + 1);
+                Log.d("Gallery", "From " + fromPosition + " " + toPosition);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
                 Collections.swap(mDataset, i, i - 1);
             }
         }
+
         notifyItemMoved(fromPosition, toPosition);
     }
 
@@ -73,13 +76,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> impl
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.onItemClick(view, position);
+                mListener.onItemClick(view, holder.getAdapterPosition());
             }
         });
 

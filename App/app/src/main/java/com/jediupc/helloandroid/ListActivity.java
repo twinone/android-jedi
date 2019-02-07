@@ -12,9 +12,9 @@ import android.view.View;
 
 import com.jediupc.helloandroid.gallery.GalleryActivity;
 import com.jediupc.helloandroid.musicplayer.MusicActivity;
+import com.jediupc.helloandroid.navigation.NavActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -51,7 +51,7 @@ public class ListActivity extends AppCompatActivity {
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
-                Log.d("ListActivity", "Click item " + String.valueOf(pos));
+                Log.d("Gallery", "Click item " + String.valueOf(pos));
                 MenuItem mi = myDataset.get(pos);
 
                 Intent i = new Intent(ListActivity.this, mi.cls);
@@ -60,26 +60,29 @@ public class ListActivity extends AppCompatActivity {
         });
 
         mRecyclerView.setAdapter(mAdapter);
+
+
         enableDragDrop();
 
 
     }
 
     private void enableDragDrop() {
-        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-b9456d2b1aaf
-        // https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-6a6f0c422efd
         ItemTouchHelper ith = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-                return makeMovementFlags(dragFlags, swipeFlags);
+                return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                        ItemTouchHelper.START | ItemTouchHelper.END);
             }
 
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder source, @NonNull RecyclerView.ViewHolder target) {
-                mAdapter.onItemMove(source.getAdapterPosition(),
-                        target.getAdapterPosition());
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder src,
+                                  @NonNull RecyclerView.ViewHolder dst) {
+                int srcPos = src.getAdapterPosition();
+                int dstPos = dst.getAdapterPosition();
+
+                mAdapter.onItemMove(srcPos, dstPos);
                 return true;
             }
 
@@ -87,20 +90,15 @@ public class ListActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                 mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
             }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return true;
-            }
-
-            @Override
-            public boolean isItemViewSwipeEnabled() {
-                return true;
-            }
         });
-
         ith.attachToRecyclerView(mRecyclerView);
+
+
     }
 
+    public interface ItemTouchHelperAdapter {
+        void onItemMove(int from, int to);
 
+        void onItemDismiss(int pos);
+    }
 }

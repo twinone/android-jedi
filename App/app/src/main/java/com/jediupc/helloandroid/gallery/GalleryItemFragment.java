@@ -23,7 +23,6 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.github.chrisbanes.photoview.PhotoView;
 import com.jediupc.helloandroid.R;
 
 import java.io.File;
@@ -88,20 +87,16 @@ public class GalleryItemFragment extends Fragment {
         mText.setText(String.format("@%s (%d views)", mModel.user, mModel.views));
         mDesc.setText("Image by Pixabay");
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                Glide.with(getActivity()).asBitmap().load(mModel.previewURL).
-                        into(new SimpleTarget<Bitmap>() {
+        Glide.with(getActivity()).asBitmap().load(mModel.previewURL).
+                into(new SimpleTarget<Bitmap>() {
 
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                mImage.setImageBitmap(resource);
-                                onPreviewLoaded();
-                            }
-                        });
-            }
-        });
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        mImage.setImageBitmap(resource);
+                        onPreviewLoaded();
+                    }
+                });
+
         return view;
     }
 
@@ -115,13 +110,14 @@ public class GalleryItemFragment extends Fragment {
     }
 
     public void send() {
-        Log.d("What", mPosition + " frag");
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, mUri);
         shareIntent.setType("image/*");
         startActivity(Intent.createChooser(shareIntent, "Send"));
     }
+
+
 
     private File saveImageExternal(Bitmap image) {
         //TODO - Should be processed in another thread
