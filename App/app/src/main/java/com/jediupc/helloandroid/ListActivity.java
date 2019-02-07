@@ -1,6 +1,7 @@
 package com.jediupc.helloandroid;
 
 import android.content.Intent;
+import android.media.AudioRecord;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
+import com.jediupc.helloandroid.audiomanager.AudioActivity;
 import com.jediupc.helloandroid.gallery.GalleryActivity;
 import com.jediupc.helloandroid.musicplayer.MusicActivity;
 import com.jediupc.helloandroid.navigation.NavActivity;
@@ -47,6 +49,7 @@ public class ListActivity extends AppCompatActivity {
         myDataset.add(new MenuItem("Navigation", NavActivity.class));
         myDataset.add(new MenuItem("Music Player", MusicActivity.class));
         myDataset.add(new MenuItem("Gallery", GalleryActivity.class));
+        myDataset.add(new MenuItem("Audio Recorder", AudioActivity.class));
 
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override
