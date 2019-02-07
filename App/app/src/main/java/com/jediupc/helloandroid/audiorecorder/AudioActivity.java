@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.jediupc.helloandroid.R;
+import com.jediupc.helloandroid.model.AudioModel;
 import com.jediupc.helloandroid.model.ModelContainer;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -31,7 +32,7 @@ public class AudioActivity extends AppCompatActivity {
 
 
     private static final long START_DELAY = 500;
-    private static final String TAG = "AudioActivity";
+    private static final String TAG = "TodoListActivity";
     private static final String AUDIOS_DIR = "audios";
     private static final long UPDATE_SEEKBAR_INTERVAL = 50;
     private static final long UPDATE_AMPLITUDE_ANIMATION_INTERVAL = 50;

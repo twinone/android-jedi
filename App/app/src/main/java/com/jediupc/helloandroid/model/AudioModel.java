@@ -1,4 +1,4 @@
-package com.jediupc.helloandroid.audiorecorder;
+package com.jediupc.helloandroid.model;
 
 public class AudioModel {
     public String path;

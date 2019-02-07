@@ -21,11 +21,11 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
         void onItemClick(View v, int pos);
     }
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
+    // Provide a reference to the views for each data text
+    // Complex data items may need more than one view per text, and
+    // you provide access to all the views for a data text in a view holder
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+        // each data text is just a string in this case
         public RelativeLayout mRoot;
         public TextView mTextView;
         public TextView mDuration;

@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.jediupc.helloandroid.R;
+import com.jediupc.helloandroid.model.AudioModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,11 +49,11 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.MyViewHolder
         void onSeek(View v, int pos, float progress);
     }
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
+    // Provide a reference to the views for each data text
+    // Complex data items may need more than one view per text, and
+    // you provide access to all the views for a data text in a view holder
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+        // each data text is just a string in this case
         public RelativeLayout mRoot;
         private TextView mTVDuration;
         private TextView mTVCurrTime;

@@ -350,7 +350,7 @@ public class GalleryActivity extends AppCompatActivity {
 
             float finalRadius = (float) Math.hypot(xmax, ymax);
 
-            Animator anim = ViewAnimationUtils.createCircularReveal(mViewPager, cx, cy, smallR / 2, finalRadius);
+            Animator anim = ViewAnimationUtils.createCircularReveal(mViewPager, cx, cy, smallR / 3, finalRadius);
             anim.setDuration(ANIM_DURATION);
             anim.start();
         }
@@ -377,7 +377,7 @@ public class GalleryActivity extends AppCompatActivity {
                     float finalRadius = (float) Math.hypot(xmax, ymax);
 
                     Animator anim = ViewAnimationUtils.createCircularReveal(
-                            mViewPager, cx, cy, finalRadius, smallR / 2);
+                            mViewPager, cx, cy, finalRadius, smallR / 3);
                     anim.setDuration(ANIM_DURATION);
                     anim.addListener(new AnimatorListenerAdapter() {
                         @Override

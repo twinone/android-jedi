@@ -41,11 +41,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
         boolean onItemLongClick(View v, int pos);
     }
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
+    // Provide a reference to the views for each data text
+    // Complex data items may need more than one view per text, and
+    // you provide access to all the views for a data text in a view holder
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+        // each data text is just a string in this case
         public ViewGroup mRoot;
         public ImageView mImage;
         public CheckBox mCheckBox;
