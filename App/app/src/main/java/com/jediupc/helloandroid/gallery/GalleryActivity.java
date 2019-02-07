@@ -73,11 +73,21 @@ public class GalleryActivity extends AppCompatActivity {
 
     private AdView mAdView;
     private ModelContainer mModel;
+    private FloatingActionButton mFAB;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("q", mQuery);
+    }
+
+
+    private void updateFABIcon() {
+        mFAB.setImageResource(
+                mViewPager.getVisibility() == View.VISIBLE
+                        ? R.drawable.ic_share
+                        : R.drawable.ic_search
+        );
     }
 
     @Override
@@ -90,7 +100,7 @@ public class GalleryActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         Log.d("Ads", "Hello!");
 
-        mModel  = ModelContainer.load(this);
+        mModel = ModelContainer.load(this);
         mModel.print();
 
 
@@ -114,8 +124,8 @@ public class GalleryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFAB = findViewById(R.id.fab);
+        mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //queryInput();
@@ -126,6 +136,8 @@ public class GalleryActivity extends AppCompatActivity {
 
                     gif.send();
 
+                } else {
+                    queryInput();
                 }
 
             }
@@ -326,6 +338,7 @@ public class GalleryActivity extends AppCompatActivity {
             if (mDataset == null) return 0;
             return mDataset.size();
         }
+
     }
 
     @Override
@@ -354,6 +367,7 @@ public class GalleryActivity extends AppCompatActivity {
             anim.setDuration(ANIM_DURATION);
             anim.start();
         }
+        updateFABIcon();
     }
 
     private void hideViewPager() {
@@ -384,14 +398,15 @@ public class GalleryActivity extends AppCompatActivity {
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
                             mViewPager.setVisibility(View.GONE);
+                            updateFABIcon();
                         }
                     });
                     anim.start();
                 } else {
                     mViewPager.setVisibility(View.GONE);
+                    updateFABIcon();
                 }
             }
         });
-
     }
 }
