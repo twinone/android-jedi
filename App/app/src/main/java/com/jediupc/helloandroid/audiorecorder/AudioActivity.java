@@ -1,4 +1,4 @@
-package com.jediupc.helloandroid.audiomanager;
+package com.jediupc.helloandroid.audiorecorder;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -33,7 +33,10 @@ public class AudioActivity extends AppCompatActivity {
     private static final long START_DELAY = 500;
     private static final String TAG = "AudioActivity";
     private static final String AUDIOS_DIR = "audios";
-    private static final long UPDATE_SEEKBAR_INTERVAL = 80;
+    private static final long UPDATE_SEEKBAR_INTERVAL = 50;
+    private static final long UPDATE_AMPLITUDE_ANIMATION_INTERVAL = 50;
+    private static final float FAB_SCALE = 10;
+
 
     // user is pressing on FAB
     private boolean mFABFingerDown;
@@ -58,6 +61,7 @@ public class AudioActivity extends AppCompatActivity {
 
     private Handler mHandler = new Handler();
     private int mCurrentPlayingPos;
+    private FloatingActionButton mBackFAB;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -77,6 +81,7 @@ public class AudioActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mFAB = findViewById(R.id.fab);
+        mBackFAB = findViewById(R.id.backFab);
         mFAB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View v, MotionEvent e) {
@@ -124,7 +129,6 @@ public class AudioActivity extends AppCompatActivity {
         checkPermissions();
 
 
-        mHandler.post(mUpdateTimeRunnable);
         enableDragDrop();
     }
 
@@ -161,6 +165,7 @@ public class AudioActivity extends AppCompatActivity {
             mPlayer.setDataSource(mCurrentPlayingFile.getAbsolutePath());
             mPlayer.prepare();
             mPlayer.start();
+            mHandler.post(mUpdateTimeRunnable);
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -170,6 +175,7 @@ public class AudioActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e(TAG, "prepare() failed");
         }
+
     }
 
     private void stopPlaying() {
@@ -200,6 +206,8 @@ public class AudioActivity extends AppCompatActivity {
         }
 
         mRecorder.start();
+
+        mHandler.post(mUpdateAmplitudeRunnable);
     }
 
     private void stopRecording() {
@@ -253,6 +261,8 @@ public class AudioActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                if (i == mCurrentPlayingPos)
+                    stopPlaying();
                 mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
             }
         });
@@ -276,9 +286,26 @@ public class AudioActivity extends AppCompatActivity {
                         findViewHolderForAdapterPosition(mCurrentPlayingPos);
                 vh.update(mPlayer.getDuration(), mPlayer.getCurrentPosition());
 
+                mHandler.postDelayed(this, UPDATE_SEEKBAR_INTERVAL);
             }
-            mHandler.postDelayed(this, UPDATE_SEEKBAR_INTERVAL);
         }
     };
+
+
+    private Runnable mUpdateAmplitudeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mRecorder != null) {
+                float scale = (float) mRecorder.getMaxAmplitude() / 32767;
+                mBackFAB.setScaleX(1 + scale * FAB_SCALE);
+                mBackFAB.setScaleY(1 + scale * FAB_SCALE);
+                mHandler.postDelayed(this, UPDATE_AMPLITUDE_ANIMATION_INTERVAL);
+            } else {
+                mBackFAB.setScaleX(1);
+                mBackFAB.setScaleY(1);
+            }
+        }
+    };
+
 
 }

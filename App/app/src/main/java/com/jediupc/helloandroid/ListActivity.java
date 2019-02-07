@@ -1,7 +1,6 @@
 package com.jediupc.helloandroid;
 
 import android.content.Intent;
-import android.media.AudioRecord;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
-import com.jediupc.helloandroid.audiomanager.AudioActivity;
+import com.jediupc.helloandroid.audiorecorder.AudioActivity;
 import com.jediupc.helloandroid.gallery.GalleryActivity;
 import com.jediupc.helloandroid.musicplayer.MusicActivity;
 import com.jediupc.helloandroid.navigation.NavActivity;

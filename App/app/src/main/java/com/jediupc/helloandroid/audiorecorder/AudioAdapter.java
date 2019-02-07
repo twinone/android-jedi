@@ -1,4 +1,4 @@
-package com.jediupc.helloandroid.audiomanager;
+package com.jediupc.helloandroid.audiorecorder;
 
 import android.annotation.SuppressLint;
 import android.support.design.widget.FloatingActionButton;
