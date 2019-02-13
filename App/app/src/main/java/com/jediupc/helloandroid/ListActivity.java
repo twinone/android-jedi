@@ -10,11 +10,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
-import com.jediupc.helloandroid.audiorecorder.AudioActivity;
 import com.jediupc.helloandroid.gallery.GalleryActivity;
 import com.jediupc.helloandroid.musicplayer.MusicActivity;
 import com.jediupc.helloandroid.navigation.NavActivity;
-import com.jediupc.helloandroid.todolist.TodoListActivity;
 
 import java.util.ArrayList;
 
@@ -49,13 +47,11 @@ public class ListActivity extends AppCompatActivity {
         myDataset.add(new MenuItem("Navigation", NavActivity.class));
         myDataset.add(new MenuItem("Music Player", MusicActivity.class));
         myDataset.add(new MenuItem("Gallery", GalleryActivity.class));
-        myDataset.add(new MenuItem("Audio Recorder", AudioActivity.class));
-        myDataset.add(new MenuItem("Todo List", TodoListActivity.class));
 
         mAdapter = new MyAdapter(myDataset, new MyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
-                Log.d("Gallery", "Click text " + String.valueOf(pos));
+                Log.d("Gallery", "Click item " + String.valueOf(pos));
                 MenuItem mi = myDataset.get(pos);
 
                 Intent i = new Intent(ListActivity.this, mi.cls);

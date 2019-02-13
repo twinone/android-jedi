@@ -12,6 +12,4 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_gallery">GalleryActivity</string>
-    <string name="title_activity_audio">AudioActivity</string>
-    <string name="title_activity_todolist">Todo List</string>
 </resources>

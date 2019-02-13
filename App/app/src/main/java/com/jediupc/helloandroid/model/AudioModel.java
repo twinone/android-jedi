@@ -1,14 +1,8 @@
 package com.jediupc.helloandroid.model;
 
-public class AudioModel {
+import java.io.Serializable;
+
+public class AudioModel implements Serializable {
     public String path;
-    public long duration;
-
-    public String getName() {
-        return path.split("/")[1].split(".")[0];
-    }
-
-    public int getTime() {
-        return Integer.valueOf(getName());
-    }
+    public int duration; // in ms
 }
